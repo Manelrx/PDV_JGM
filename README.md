@@ -1,71 +1,109 @@
-# PDV JGM - Autonomous Mini Market System
+# PDV Just Go Market (Autonomous System)
 
-## Project Overview
-This project is an **Autonomous Mini Market System** for residential condominiums. It consists of a Mobile App (Scan & Go), an Offline-First PDV (Totem), and a Backend Orchestrator that ensures strict financial consistency and integrates with ERPNext.
+Welcome to the **Just Go Market** Autonomous Mini Market System. This project implements a fully autonomous backend for a Scan & Go retail experience, featuring strict domain logic, resilient integrations, and a robust offline-first architecture.
 
-## Architecture
-The system follows a strict orchestrator-based architecture where the Backend is the single source of truth for prices and sales states.
-- **Architecture Design**: [docs/architecture_design.md](./docs/architecture_design.md)
-- **Repo Structure**: Monorepo managed by `pnpm` and `Turborepo`.
+**State:** Phase 3 Complete (Session & Sales Orchestration)
+**Focus:** Payment Integration & Security
 
-## Directory Layout
-```
-/
-├── apps/
-│   ├── backend/    (NestJS)
-│   ├── mobile/     (Expo React Native - Stub)
-│   └── pdv/        (Vite React + Electron - Stub)
-├── packages/
-│   ├── types/      (Shared Interfaces)
-│   └── config/     (Shared Configs)
-├── docs/           (Project Plans & Artifacts)
-└── docker-compose.yml (Local Infrastructure)
-```
+---
 
-## Current Status
-We are in **Phase 1 (Finalization)**.
-- **Backend**: Core Implemented (NestJS + Postgres).
-- **Sales State Machine**: Strict implementation with TDD verification.
-- **Price Engine**: Multi-store versioning implemented.
-- **Hardening**: Idempotency Guard (Mocked Cache) and ERP Queue Strategy defined.
+## 🏛 System Architecture
 
-**Pending Steps (Immediate)**:
-1.  **Redis Intergration**: Replace simulated Cache with `ioredis` for `SETNX` atomicity.
-2.  **DLQ API**: Implement Endpoint for Manual Dead Letter Queue Management.
-3.  **Frontend**: Begin implementation of Mobile and PDV apps.
+The system is built as a Monorepo using **NestJS** (Backend), **React Native** (Mobile), and **Vite/React** (PDV).
 
-## Setup Instructions
+### **Core Principles**
+1.  **Backend Authority**: All total calculations and validations happen on the server. Clients (App/PDV) are dump terminals.
+2.  **Immutable Snapshots**: Sessions and Sales store snapshots of prices/items to prevent historical drift.
+3.  **Strict Transitions**: State machines govern Sales (`CREATED` -> `PAID`) and Sessions (`ACTIVE` -> `CLOSED`).
+4.  **Resilience**:
+    *   **Redis Idempotency**: `SETNX` locks prevent double-processing.
+    *   **Dead Letter Queues**: Failed ERP sync jobs (BullMQ) are captured for manual retry.
+    *   **Offline Fallback**: PDV operates in "Safe Mode" if the Design System fails.
 
-1.  **Install Dependencies**:
-    ```bash
-    pnpm install
-    ```
+---
 
-2.  **Start Infrastructure**:
+## 🧩 Backend Modules
+
+### 1. **Auth & Biometry** (Guardian)
+*   **Auth**: JWT-based stateless authentication.
+*   **Biometry**: Mock service simulating physical access control (`BiometryService`).
+*   **Security**: `AuthGuard` protects all transaction endpoints.
+
+### 2. **Catalog & Price** (Source of Truth)
+*   **Entities**: `Product` (ERP Logic), `Stock` (Warehouse), `Price` (Versioned).
+*   **Sync**: Consumers (`ErpSyncProcessor`) listen to `erp-sync` queue for asynchronous updates.
+*   **Rules**: Prices are per-store and versioned. Stock updates respect source timestamp to prevent out-of-order overwrites.
+
+### 3. **Session Management** (Carts)
+*   **Lifecycle**: User starts a session -> Adds items -> Closes session.
+*   **Rules**:
+    *   Only **one** active session per user/store.
+    *   Item prices are **snapshotted** from `PriceService` at the moment of addition.
+    *   Total is always calculated by the backend.
+
+### 4. **Sales Orchestration** (Financial)
+*   **Conversion**: `SalesService` converts a **CLOSED** Session into a **CREATED** Sale transactionally.
+*   **Immutability**: The Sale entity contains a deep copy of the cart, independent of the session.
+*   **Idempotency**: Retrying the conversion returns the *existing* sale, preventing duplication.
+
+### 5. **ERP Integration** (Async)
+*   **Mock Service**: `ErpMockService` simulates ERPNext behavior (Products, Stock, Price).
+*   **Resilience**: `DlqService` allows Admin re-processing of failed sync jobs with audit logs.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+*   Node.js & pnpm
+*   Docker (for Postgres + Redis)
+
+### Running the Stack
+
+1.  **Infrastructure**:
     ```bash
     docker-compose up -d
     ```
 
-3.  **Run Backend (Dev)**:
+2.  **Backend**:
     ```bash
     cd apps/backend
-    npm run start:dev
+    pnpm start:dev
     ```
 
-4.  **Run Tests**:
+3.  **Mobile (Expo)**:
     ```bash
-    cd apps/backend
-    # Verified:
-    npm run test src/modules/sales/domain/sales.state-machine.spec.ts
-    npm run test src/modules/common/tests/idempotency.spec.ts
+    cd apps/mobile
+    pnpm start
     ```
 
-## Documentation & Plans
-- **Roadmap / Tasks**: [docs/task.md](./docs/task.md)
-- **Implementation Plan**: [docs/implementation_plan.md](./docs/implementation_plan.md)
-- **Walkthrough / Changelog**: [docs/walkthrough.md](./docs/walkthrough.md)
+4.  **PDV (Vite)**:
+    ```bash
+    cd apps/pdv
+    pnpm dev
+    ```
 
-## Notes for Next Developer
-- **SSL Issues**: Dependencies were installed manually or via modified registry due to `SELF_SIGNED_CERT_IN_CHAIN` errors in the previous environment.
-- **Idempotency**: Currently using a mock In-Memory cache. MUST be swapped for Redis before production.
-- **Environment Variables**: Configure `.env` based on `database.config.ts`.
+---
+
+## 🧪 Verification & Testing
+
+The project maintains a high bar for code quality with focused Unit Tests for critical logic:
+
+*   **Session Logic**: `npm test modules/session` (Lifecycle, Price Lookup)
+*   **Sales Logic**: `npm test modules/sales` (Transaction, Idempotency)
+*   **ERP Workers**: `npm test modules/erp` (Queue Processing)
+*   **State Machine**: `npm test modules/common/idempotency` & `sales.state-machine`
+
+---
+
+## 📅 Roadmap Status
+
+- [x] **Phase 1: Foundation**: Arch, Logs, Idempotency, DLQ.
+- [x] **Phase 2: Core Components**: Mobile/PDV Skeletons, ERP Sync.
+- [x] **Phase 3: Business Logic**: Auth, Session, Sales Conversion.
+- [ ] **Phase 4: Payments**: Pix Integration.
+- [ ] **Phase 5: Delivery**: End-to-End Tests & Docs.
+
+---
+
+*Verified by Antigravity Agent - 2025-12*

@@ -12,5 +12,6 @@ import { CatalogModule } from '../catalog/catalog.module';
     ],
     controllers: [SessionController],
     providers: [SessionService],
+    exports: [SessionService],
 })
 export class SessionModule { }

@@ -85,6 +85,10 @@ export class SessionService {
         return this.sessionRepo.save(session);
     }
 
+    async getSession(sessionId: string): Promise<Session | null> {
+        return this.sessionRepo.findOne({ where: { id: sessionId } });
+    }
+
     private recalculateTotal(session: Session) {
         session.total = session.cart.reduce((sum, item) => sum + item.totalPrice, 0);
     }

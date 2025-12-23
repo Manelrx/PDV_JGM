@@ -8,6 +8,7 @@ import { CommonModule } from './modules/common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BiometryModule } from './modules/biometry/biometry.module';
 import { SessionModule } from './modules/session/session.module';
+import { SalesModule } from './modules/sales/sales.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { SessionModule } from './modules/session/session.module';
         AuthModule,
         BiometryModule,
         SessionModule,
+        SalesModule,
     ],
     controllers: [],
     providers: [],
