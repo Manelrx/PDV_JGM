@@ -60,8 +60,11 @@ The system is built as a Monorepo using **NestJS** (Backend), **React Native** (
 
 ### Running the Stack
 
-1.  **Infrastructure**:
     ```bash
+    # 1. Install Dependencies
+    pnpm install
+
+    # 2. Start Database & Redis (REQUIRED)
     docker-compose up -d
     ```
 
@@ -89,10 +92,13 @@ The system is built as a Monorepo using **NestJS** (Backend), **React Native** (
 
 The project maintains a high bar for code quality with focused Unit Tests for critical logic:
 
-*   **Session Logic**: `npm test modules/session` (Lifecycle, Price Lookup)
-*   **Sales Logic**: `npm test modules/sales` (Transaction, Idempotency)
-*   **ERP Workers**: `npm test modules/erp` (Queue Processing)
-*   **State Machine**: `npm test modules/common/idempotency` & `sales.state-machine`
+    ```bash
+    cd apps/backend
+    node verify_backend.js
+    ```
+    *   **Automated Tests**:
+        *   `npm test modules/session`
+        *   `npm test modules/sales`
 
 ---
 

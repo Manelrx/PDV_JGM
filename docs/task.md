@@ -34,8 +34,8 @@
     - [ ] Create sync mechanism (Webhooks/Polling) structure
 
 ## Phase 2: Core Components Implementation
-- [ ] **Mobile App (Scan & Go) - Skeleton** <!-- id: 3 -->
-    - [ ] Setup React Native (Expo) project
+- [/] **Mobile App (Scan & Go) - Skeleton** <!-- id: 3 -->
+    - [x] Setup React Native (Expo) project
     - [ ] Implement Authentication flow (Auth0/Firebase or Custom JWT)
     - [ ] Basic Catalog & Cart logic
 - [ ] **PDV (Offline-first) - Skeleton** <!-- id: 4 -->
@@ -44,12 +44,12 @@
     - [ ] Offline/Online state management
 
 ## Phase 3: Business Logic & Orchestration
-- [ ] **Session Management** <!-- id: 5 -->
-    - [ ] Create/Manage shopping sessions
+- [/] **Session Management** <!-- id: 5 -->
+    - [x] Create/Manage shopping sessions
     - [ ] Biometric Access Integration (Mock)
-- [ ] **Sales Flow Orchestration** <!-- id: 6 -->
-    - [ ] Validation logic (prices, stock availability check)
-    - [ ] State Machine for Sales (CREATED -> PENDING -> PAID -> SYNCED)
+- [/] **Sales Flow Orchestration** <!-- id: 6 -->
+    - [x] Validation logic (prices, stock availability check)
+    - [x] State Machine for Sales (CREATED -> PENDING -> PAID -> SYNCED)
 - [ ] **Payments Integration** <!-- id: 7 -->
     - [ ] Gateway integration (Pix-first strategy)
     - [ ] Webhook handlers for payment confirmation
