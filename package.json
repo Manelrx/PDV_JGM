@@ -5,6 +5,11 @@
   "engines": {
     "node": ">=18"
   },
+  "pnpm": {
+    "overrides": {
+      "react-native-worklets": "0.5.1"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

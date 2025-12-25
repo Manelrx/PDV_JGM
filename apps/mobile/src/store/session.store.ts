@@ -39,6 +39,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             setAuthToken(access_token);
             set({ token: access_token, isLoading: false });
         } catch (e: any) {
+            console.log('Login Error:', e);
+            if (e.response) {
+                console.log('Status:', e.response.status);
+                console.log('Data:', JSON.stringify(e.response.data));
+            } else if (e.request) {
+                console.log('Network Error - Sem resposta do servidor. Verifique o IP e Firewall.');
+            }
             set({ error: 'Login Failed', isLoading: false });
             throw e;
         }
